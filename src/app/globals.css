@@ -1,26 +1,206 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ================================================================== *
+ * Yaadbaan — editorial care brand
+ * Light, warm, vibrant. Big type. No photographic assets — all
+ * atmosphere is CSS. Every text pair clears WCAG AA on the cream bg.
+ * ================================================================== */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-cream: var(--cream);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+
+  --color-teal: var(--teal);
+  --color-teal-ink: var(--teal-ink);
+  --color-marigold: var(--marigold);
+  --color-coral: var(--coral);
+  --color-plum: var(--plum);
+
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-hanken), system-ui, sans-serif;
+
+  --radius-xl: 1.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --bg: #fbf6ec;          /* warm cream */
+  --cream: #f4ecdb;       /* deeper cream for blocks */
+  --surface: #fffdf8;     /* card */
+  --ink: #16201c;         /* ~14:1 on bg */
+  --muted: #515a52;       /* ~6.4:1 on bg (AA body) */
+
+  --teal: #0b8f6f;        /* vivid brand teal — white text ~4.7:1 (AA large/UI) */
+  --teal-ink: #075c47;    /* teal for body text on light ~6.3:1 (AA) */
+  --marigold: #f0a818;    /* decorative warmth */
+  --coral: #f0573f;       /* energy / urgency accent */
+  --plum: #3a2c4a;        /* deep contrast block */
+
+  --border: #e6dcc7;
+  --ring: #0b8f6f;
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    font-weight: 500;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: var(--color-marigold);
+    color: var(--color-ink);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
+
+/* --- scroll-triggered reveal ------------------------------------ */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-init.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* full-viewport section that still grows past the screen on demand */
+.screen {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* --- slow drifting atmosphere blobs ----------------------------- */
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(2%, -3%) scale(1.06); }
+}
+.blob { animation: drift 16s ease-in-out infinite; }
+
+/* --- hero: smooth, slowly-flowing mesh gradient (not blotchy) ---- */
+.hero-mesh {
+  background:
+    radial-gradient(55% 50% at 20% 30%, color-mix(in oklab, var(--teal) 16%, transparent) 0%, transparent 72%),
+    radial-gradient(50% 48% at 82% 24%, color-mix(in oklab, var(--marigold) 18%, transparent) 0%, transparent 70%),
+    radial-gradient(55% 55% at 72% 82%, color-mix(in oklab, var(--coral) 12%, transparent) 0%, transparent 74%);
+  background-size: 180% 180%;
+  filter: blur(12px);
+  /* clear in the centre (behind the text), colour gathered at the edges,
+     and faded along the bottom so the section blends into the next */
+  -webkit-mask:
+    radial-gradient(58% 52% at 50% 46%, transparent 35%, #000 78%),
+    linear-gradient(180deg, #000 70%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(58% 52% at 50% 46%, transparent 35%, #000 78%),
+    linear-gradient(180deg, #000 70%, transparent 100%);
+  mask-composite: intersect;
+  animation: mesh 26s ease-in-out infinite alternate;
+}
+@keyframes mesh {
+  0%   { background-position: 0% 0%, 100% 0%, 100% 100%, 0% 100%; }
+  50%  { background-position: 30% 20%, 70% 25%, 65% 75%, 25% 70%; }
+  100% { background-position: 10% 15%, 90% 10%, 80% 90%, 15% 85%; }
+}
+
+/* --- gentle floating elements ----------------------------------- */
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+  50%      { transform: translateY(-14px) rotate(var(--rot, 0deg)); }
+}
+.float { animation: bob var(--bob-dur, 7s) ease-in-out infinite; }
+
+/* --- card lift -------------------------------------------------- */
+.card {
+  background:
+    linear-gradient(180deg, var(--color-surface), color-mix(in oklab, var(--color-surface) 80%, var(--cream)));
+  box-shadow: 0 1px 2px rgba(22, 32, 28, 0.04);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px -18px rgba(22, 32, 28, 0.35);
+  border-color: color-mix(in oklab, var(--teal) 45%, var(--border));
+}
+
+/* marker-pen highlight for inline emphasis */
+.highlight {
+  background-image: linear-gradient(
+    180deg,
+    transparent 58%,
+    color-mix(in oklab, var(--marigold) 55%, transparent) 58%
+  );
+  padding: 0 0.12em;
+  border-radius: 0.12em;
+}
+
+/* slow self-drawing decorative stroke */
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+.twirl path {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: draw 2.4s ease-out 0.2s forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .twirl path { stroke-dashoffset: 0; animation: none; }
+}
+
+/* skip link */
+.skip-link {
+  position: absolute; left: 1rem; top: -3.5rem; z-index: 100;
+  background: var(--color-ink); color: var(--color-bg);
+  padding: 0.7rem 1.1rem; border-radius: 0.6rem; font-weight: 700;
+  transition: top 0.18s ease;
+}
+.skip-link:focus { top: 1rem; }
